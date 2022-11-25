@@ -1,0 +1,85 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(4)Circuit Generator",
+            "type": "python",
+            "request": "launch",
+            "program": "circuit.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "--num_resonator",
+                "4"
+            ]
+        },
+        {
+            "name": "(6)Circuit Generator",
+            "type": "python",
+            "request": "launch",
+            "program": "circuit.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "--num_resonator",
+                "6"
+            ]
+        },
+        {
+            "name": "Train",
+            "type": "python",
+            "request": "launch",
+            "program": "train.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "--exp", "exp_1",
+                "--data_root", "data_root"
+            ]
+        },
+        {
+            "name": "Test",
+            "type": "python",
+            "request": "launch",
+            "program": "test.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "--exp", "train_1",
+                "--data_root", "data_root",
+                "--epoch", "0"
+            ]
+        },
+        {
+            "name": "Forward Prediction",
+            "type": "python",
+            "request": "launch",
+            "program": "vis_forward.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "--exp", "train_1",
+                "--data_root", "data_root",
+                "--epoch", "0",
+                "--num_resonator", "{n}",
+                "--circuit_type", "{tp}",
+                "--phase", "{phase}"
+            ]
+        },
+        {
+            "name": "Inverse Optimization",
+            "type": "python",
+            "request": "launch",
+            "program": "inverse.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "--exp", "train_1",
+                "--epoch", "0"
+            ]
+        }
+    ]
+}
