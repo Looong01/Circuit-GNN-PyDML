@@ -1,6 +1,8 @@
 import sys
+import torch_directml
 import numpy as np
 
+dml = torch_directml.device()
 
 def pickle_save(filename, obj):
     import pickle
@@ -35,7 +37,7 @@ class AverageMeter(object):
 # ======================================================================================================================
 def to_tensor(x):
     import torch
-    return torch.tensor(x).to(torch.float).to("dml")
+    return torch.tensor(x).to(torch.float).to(dml)
 
 
 def to_np(x):

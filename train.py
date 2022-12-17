@@ -1,4 +1,5 @@
 import torch
+import torch_directml
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.optim.lr_scheduler import MultiStepLR
@@ -13,6 +14,9 @@ from utils import *
 from config import parser, DUMP_FOLDER
 from model import CircuitGNN
 from dataset import CircuitDataset, load_data_list
+
+dml = torch_directml.device()
+
 
 args = parser.parse_args()
 
@@ -35,7 +39,7 @@ model = CircuitGNN(args)
 if args.resume_epoch > -1:
     model.load_state_dict(torch.load(os.path.join(args.ckpt_folder, 'model_ep%d.pth' % args.resume_epoch)))
 
-model.to("dml")
+model.to(dml)
 optimizer = optim.Adam(model.parameters(), lr=args.lr, betas=(0.9, 0.999))
 scheduler = MultiStepLR(optimizer, milestones=[500, 700, 900, 1000, 1050, 1100, 1150], gamma=0.5)
 print("model #params: %d" % count_parameters(model))
@@ -106,7 +110,7 @@ def train(epoch):
     for i, data in bar(enumerate(train_iter)):
         data, label, raw = data
         node_attr, edge_attr, adj = data
-        node_attr, edge_attr, adj, label = [x.to("dml") for x in [node_attr, edge_attr, adj, label]]
+        node_attr, edge_attr, adj, label = [x.to(dml) for x in [node_attr, edge_attr, adj, label]]
         pred = model(input=(node_attr, edge_attr, adj))
 
         loss = F.l1_loss(pred, label)
@@ -178,7 +182,7 @@ def valid(epoch):
         for i, data in bar(enumerate(data_loader)):
             data, label, raw = data
             node_attr, edge_attr, adj = data
-            node_attr, edge_attr, adj, label = [x.to("dml") for x in [node_attr, edge_attr, adj, label]]
+            node_attr, edge_attr, adj, label = [x.to(dml) for x in [node_attr, edge_attr, adj, label]]
             pred = model(input=(node_attr, edge_attr, adj))
 
             loss = F.l1_loss(pred, label)

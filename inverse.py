@@ -4,6 +4,7 @@ from config import parser, DUMP_FOLDER, CONST
 from dataset import STATS
 from circuit import CircuitGenerator
 import torch
+import torch_directml
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
@@ -79,6 +80,7 @@ def get_u_info(u):
 
 
 # ======================================================================================================================
+dml = torch_directml.device()
 
 args = parser.parse_args()
 
@@ -90,7 +92,7 @@ model = CircuitGNN(args)
 model_path = os.path.join(args.ckpt_folder, 'model_ep%d.pth' % args.epoch)
 print('loading model from ', model_path)
 model.load_state_dict(torch.load(os.path.join(args.ckpt_folder, 'model_ep%d.pth' % args.epoch)))
-model.to("dml")
+model.to(dml)
 model.eval()
 
 
@@ -378,7 +380,7 @@ class InverseDesigner(object):
         '''
         do parameterization
         '''
-        self.xy_parameter = nn.Parameter(torch.zeros(move_ranges.shape).to("dml"))
+        self.xy_parameter = nn.Parameter(torch.zeros(move_ranges.shape).to(dml))
 
         u_side = u_info[:, :, :4]
         u_shift = u_info[:, :, 4:]
@@ -387,7 +389,7 @@ class InverseDesigner(object):
         u_shift_val = np.clip(u_shift_val * 8, a_min=-1 + 1e-3, a_max=1 - 1e-3)
         u_shift_val_atanh = atanh(u_shift_val)
 
-        self.u_parameter = nn.Parameter(torch.tensor(u_shift_val_atanh).to(torch.float).to("dml"))
+        self.u_parameter = nn.Parameter(torch.tensor(u_shift_val_atanh).to(torch.float).to(dml))
 
         self.raw = raw
         self.raw_xy = to_tensor(raw[:, :, :2])
@@ -412,7 +414,7 @@ class InverseDesigner(object):
         u_shift_val = torch.tanh(self.u_parameter) / 8
 
         u_side = self.u_info[:, :, :4]
-        u_shift = torch.zeros(u_side.shape).to(torch.float).to("dml")
+        u_shift = torch.zeros(u_side.shape).to(torch.float).to(dml)
         u_shift[u_side > 0] = u_shift_val
 
         u_info = torch.cat([u_side, u_shift], 2)

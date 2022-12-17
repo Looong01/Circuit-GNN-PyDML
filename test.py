@@ -16,6 +16,8 @@ from dataset import CircuitDataset, load_data_list
 
 args = parser.parse_args()
 
+device =torch.device('dml')
+
 args.exp_folder = os.path.join(DUMP_FOLDER, args.exp)
 args.ckpt_folder = os.path.join(DUMP_FOLDER, args.exp, 'ckpt')
 args.train_folder = os.path.join(DUMP_FOLDER, args.exp, 'train')
@@ -31,7 +33,7 @@ args.use_gpu = torch.cuda.is_available()
 model = CircuitGNN(args)
 
 model.load_state_dict(torch.load(os.path.join(args.ckpt_folder, 'model_ep%d.pth' % args.epoch)))
-model.to("dml")
+model.to(device)
 
 max_type = 10
 
@@ -66,7 +68,7 @@ def eval(phase, num_block):
     for i, data in bar(enumerate(data_loader)):
         data, label, raw, fn = data
         node_attr, edge_attr, adj = data
-        node_attr, edge_attr, adj, label = [x.to("dml") for x in [node_attr, edge_attr, adj, label]]
+        node_attr, edge_attr, adj, label = [x.to(device) for x in [node_attr, edge_attr, adj, label]]
         pred = model(input=(node_attr, edge_attr, adj))
 
         loss = F.l1_loss(pred, label)

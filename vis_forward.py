@@ -1,4 +1,5 @@
 import torch
+import torch_directml
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.optim.lr_scheduler import MultiStepLR
@@ -13,6 +14,8 @@ from utils import *
 from config import parser, DUMP_FOLDER
 from model import CircuitGNN
 from dataset import CircuitDataset, load_data_list
+
+dml = torch_directml.device()
 
 args = parser.parse_args()
 
@@ -31,7 +34,7 @@ args.use_gpu = torch.cuda.is_available()
 model = CircuitGNN(args)
 
 model.load_state_dict(torch.load(os.path.join(args.ckpt_folder, 'model_ep%d.pth' % args.epoch)))
-model.to("dml")
+model.to(dml)
 
 max_type = 10
 
@@ -66,7 +69,7 @@ def eval(phase, num_block, circuit_type):
     for i, data in bar(enumerate(data_loader)):
         data, label, raw, fn = data
         node_attr, edge_attr, adj = data
-        node_attr, edge_attr, adj, label = [x.to("dml") for x in [node_attr, edge_attr, adj, label]]
+        node_attr, edge_attr, adj, label = [x.to(dml) for x in [node_attr, edge_attr, adj, label]]
         pred = model(input=(node_attr, edge_attr, adj))
 
         loss = F.l1_loss(pred, label)
